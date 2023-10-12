@@ -1,0 +1,37 @@
+policies:
+  - type: commit
+    spec:
+      header:
+        length: 89
+        imperative: false
+        case: lower
+        invalidLastCharacters: .
+      body:
+        required: false
+      dco: false
+      gpg: true
+      spellcheck:
+        locale: US
+      maximumOfOneCommit: false
+      conventional:
+        types:
+          - assets
+          - build
+          - codegen
+          - conf
+          - deps
+          - docs
+          - lint
+          - refactor
+          - revert
+          - test
+        scopes:
+  - type: license
+    spec:
+      excludeSuffixes:
+      includeSuffixes:
+      skipPaths:
+        - target
+        - .git
+      header:
+
