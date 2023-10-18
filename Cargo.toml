@@ -9,3 +9,6 @@ edition = "2021"
 argon2 = "0.5.2"
 clap = { version = "4.4.6", features = ["derive", "env", "unicode", "wrap_help"] }
 watchexec = "2.3.0"
+
+[dev-dependencies]
+predicates = "3.0.4"
