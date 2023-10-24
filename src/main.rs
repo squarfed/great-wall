@@ -1,6 +1,7 @@
 use argon2::{Argon2, Error};
 use clap::Parser;
 use hotwatch::{Event, EventKind, Hotwatch};
+use std::process::Command;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -30,5 +31,6 @@ fn main() -> Result<(), Error> {
             }
         })
         .expect("failed to watch file!");
+    Command::new("xaos").output(); // .arg("...").arg("..").output()?;
     Ok(())
 }
