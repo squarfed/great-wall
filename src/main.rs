@@ -1,18 +1,18 @@
-use clap::{Command, Arg};
+use clap::{Parser};
+
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+struct Cli {
+    /// Wallet seed value
+    seed: String,
+
+}
+
 
 fn main() {
-    let matches = Command::new("Great Wall")
-    .version("0.0.1")
-    .author("Federico Squartini <squarfed@bigfi.re>")
-    .about("Great Wall bip39 fractal store")
-    .arg(
-        Arg::new("seed")
-            .num_args(1)
-            .value_name("SEED")
-            .help("Input seed")
-            .required(true)
-    ).get_matches();
+    let cli = Cli::parse();
 
-println!("{:#?}", matches);
-
+    if let seed = cli.seed {
+        println!("Value for seed: {seed}");
+    }
 }
