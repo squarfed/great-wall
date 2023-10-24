@@ -1,5 +1,6 @@
 use argon2::{Argon2, Error};
 use clap::Parser;
+use hotwatch::{Event, EventKind, Hotwatch};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -20,5 +21,14 @@ fn main() -> Result<(), Error> {
     let mut output_key_material: [u8; 32] = [0u8; 32]; // Can be any desired size
     Argon2::default().hash_password_into(password, salt, &mut output_key_material)?;
     println!("{:#?}", output_key_material);
+
+    let mut hotwatch: Hotwatch = Hotwatch::new().expect("hotwatch failed to initialize!");
+    hotwatch
+        .watch("~/.XaoSrc", |event: Event| {
+            if let EventKind::Modify(_) = event.kind {
+                println!("Configuration has changed.");
+            }
+        })
+        .expect("failed to watch file!");
     Ok(())
 }
