@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 argon2 = "0.5.2"
 clap = { version = "4.4.6", features = ["derive", "env", "unicode", "wrap_help"] }
+hotwatch = "0.5.0"
 watchexec = "2.3.0"
 
 [dev-dependencies]
