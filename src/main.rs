@@ -21,6 +21,31 @@ fn xaos_config_path() -> PathBuf {
     Path::new(&home_dir).join(".XaoSrc")
 }
 
+fn write_xaos_config(
+    xaos_config_path: &PathBuf,
+    x: f32,
+    y: f32,
+    sx: f32,
+    sy: f32,
+) -> Result<(), std::io::Error> {
+    let mut xaos_config: File = File::create(&xaos_config_path).unwrap();
+    write!(
+        xaos_config,
+        "(initstate)
+(defaultpalette 0)
+(formula 'mandel)
+(letterspersec 15)
+(cyclingspeed 30)
+(maxiter 1000)
+(view {} {} {} {} )
+
+
+(usleep 0)
+(letterspersec 15)",
+        x, y, sx, sy
+    )
+}
+
 fn main() -> Result<()> {
     let cli = Cli::parse();
     let iteration_number = 50;
@@ -55,23 +80,8 @@ fn main() -> Result<()> {
     pb.finish_with_message("done");
     println!("{:#?}", output_key_material);
     let xaos_config_path = xaos_config_path();
-    let mut xaos_config: File = File::create(&xaos_config_path).unwrap();
-    write!(
-        xaos_config,
-        "(initstate)
-(defaultpalette 0)
-(formula 'mandel)
-(letterspersec 15)
-(cyclingspeed 30)
-(maxiter 1000)
-(view {} {} {} {} )
-
-
-(usleep 0)
-(letterspersec 15)",
-        -1.0049, -0.32715, 0.87506, 0.87506
-    )?;
     let mut hotwatch: Hotwatch = Hotwatch::new().expect("hotwatch failed to initialize!");
+    let _ = write_xaos_config(&xaos_config_path, -1.0, -0.3, 0.8, 0.8)?;
     hotwatch
         .watch(&xaos_config_path, |event: Event| {
             if let EventKind::Modify(_) = event.kind {
