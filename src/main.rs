@@ -46,13 +46,8 @@ fn write_xaos_config(
     )
 }
 
-fn main() -> Result<()> {
-    let cli = Cli::parse();
-    let iteration_number = 50;
-    let seed = cli.seed;
-    println!("Value for seed: {seed}");
-    let password: &[u8] = seed.as_bytes();
-    let salt: &[u8; 12] = b"example salt"; // Todo: ?
+fn run_argon2(iterations: u32, password: &[u8]) -> [u8; 32] {
+    let salt: &[u8; 12] = b"example salt"; // Todo: it should not be there?
     let mut output_key_material: [u8; 32] = [0u8; 32]; // Can be any desired size
     let pb = ProgressBar::new_spinner();
     pb.enable_steady_tick(Duration::from_millis(120));
@@ -70,14 +65,21 @@ fn main() -> Result<()> {
             ]),
     );
     pb.set_message("hashing...");
-    let params = ParamsBuilder::new()
-        .t_cost(iteration_number)
-        .build()
-        .unwrap();
+    let params = ParamsBuilder::new().t_cost(iterations).build().unwrap();
     Argon2::from(params)
         .hash_password_into(password, salt, &mut output_key_material)
         .expect("Failed to hash passord");
     pb.finish_with_message("done");
+    output_key_material
+}
+
+fn main() -> Result<()> {
+    let cli = Cli::parse();
+    let iterations = 50;
+    let seed = cli.seed;
+    println!("Value for seed: {seed}");
+    let password: &[u8] = seed.as_bytes();
+    let output_key_material = run_argon2(iterations, password);
     println!("{:#?}", output_key_material);
     let xaos_config_path = xaos_config_path();
     let mut hotwatch: Hotwatch = Hotwatch::new().expect("hotwatch failed to initialize!");
