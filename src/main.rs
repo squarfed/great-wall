@@ -6,7 +6,7 @@ use std::env;
 use std::io::Write;
 use std::process::Command;
 use std::time::Duration;
-use std::{fs::File, path::Path};
+use std::{fs::File, path::Path, path::PathBuf};
 
 use indicatif::{ProgressBar, ProgressStyle};
 
@@ -15,6 +15,10 @@ use indicatif::{ProgressBar, ProgressStyle};
 struct Cli {
     /// Wallet seed value
     seed: String,
+}
+fn xaos_config_path() -> PathBuf {
+    let home_dir = env::home_dir().expect("home directory not set");
+    Path::new(&home_dir).join(".XaoSrc")
 }
 
 fn main() -> Result<()> {
@@ -50,8 +54,7 @@ fn main() -> Result<()> {
         .expect("Failed to hash passord");
     pb.finish_with_message("done");
     println!("{:#?}", output_key_material);
-    let home_dir = env::home_dir().unwrap();
-    let xaos_config_path = Path::new(&home_dir).join(".XaoSrc");
+    let xaos_config_path = xaos_config_path();
     let mut xaos_config: File = File::create(&xaos_config_path).unwrap();
     write!(
         xaos_config,
