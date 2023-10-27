@@ -3,6 +3,9 @@ use argon2::Argon2;
 use clap::Parser;
 use hotwatch::{Event, EventKind, Hotwatch};
 use std::process::Command;
+use std::time::Duration;
+
+use indicatif::{ProgressBar, ProgressStyle};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -21,9 +24,26 @@ fn main() -> Result<()> {
     let salt: &[u8; 12] = b"example salt"; // Todo: ?
 
     let mut output_key_material: [u8; 32] = [0u8; 32]; // Can be any desired size
+    let pb = ProgressBar::new_spinner();
+    pb.enable_steady_tick(Duration::from_millis(120));
+    pb.set_style(
+        ProgressStyle::with_template("{spinner:.blue} {msg}")
+            .unwrap()
+            .tick_strings(&[
+                "▹▹▹▹▹",
+                "▸▹▹▹▹",
+                "▹▸▹▹▹",
+                "▹▹▸▹▹",
+                "▹▹▹▸▹",
+                "▹▹▹▹▸",
+                "▪▪▪▪▪",
+            ]),
+    );
+    pb.set_message("hashing...");
     Argon2::default()
         .hash_password_into(password, salt, &mut output_key_material)
         .expect("Failed to hash passord");
+    pb.finish_with_message("done");
     println!("{:#?}", output_key_material);
     let mut hotwatch: Hotwatch = Hotwatch::new().expect("hotwatch failed to initialize!");
     hotwatch
