@@ -2,8 +2,11 @@ use anyhow::Result;
 use argon2::{Argon2, ParamsBuilder};
 use clap::Parser;
 use hotwatch::{Event, EventKind, Hotwatch};
+use std::env;
+use std::io::Write;
 use std::process::Command;
 use std::time::Duration;
+use std::{fs::File, path::Path};
 
 use indicatif::{ProgressBar, ProgressStyle};
 
@@ -19,7 +22,6 @@ fn main() -> Result<()> {
     let iteration_number = 50;
     let seed = cli.seed;
     println!("Value for seed: {seed}");
-
     let password: &[u8] = seed.as_bytes();
     let salt: &[u8; 12] = b"example salt"; // Todo: ?
     let mut output_key_material: [u8; 32] = [0u8; 32]; // Can be any desired size
@@ -48,9 +50,27 @@ fn main() -> Result<()> {
         .expect("Failed to hash passord");
     pb.finish_with_message("done");
     println!("{:#?}", output_key_material);
+    let home_dir = env::home_dir().unwrap();
+    let xaos_config_path = Path::new(&home_dir).join(".XaoSrc");
+    let mut xaos_config: File = File::create(&xaos_config_path).unwrap();
+    write!(
+        xaos_config,
+        "(initstate)
+(defaultpalette 0)
+(formula 'mandel)
+(letterspersec 15)
+(cyclingspeed 30)
+(maxiter 1000)
+(view {} {} {} {} )
+
+
+(usleep 0)
+(letterspersec 15)",
+        -1.0049, -0.32715, 0.87506, 0.87506
+    )?;
     let mut hotwatch: Hotwatch = Hotwatch::new().expect("hotwatch failed to initialize!");
     hotwatch
-        .watch("~/.XaoSrc", |event: Event| {
+        .watch(&xaos_config_path, |event: Event| {
             if let EventKind::Modify(_) = event.kind {
                 println!("Configuration has changed.");
             }
